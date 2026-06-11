@@ -11,7 +11,7 @@ namespace RecipeKeeper.Models
     {
         private int _id;
         private int _stepId;
-        private string _filePath = string.Empty; // Это наше [photo_path] в БД
+        private string _filePath = string.Empty;
         private int _sortOrder;
         private Bitmap? _bitmap;
         private bool _isLoading;
