@@ -8,10 +8,10 @@ namespace RecipeKeeper.Models
 {
     public class Step : INotifyPropertyChanged
     {
-        private int _id; // Первичный ключ [id] из таблицы STEP
+        private int _id;
         private int _recipeId;
         private int _stepNumber;
-        private string _instructionText = string.Empty; // Синхронизировано с БД
+        private string _instructionText = string.Empty;
         private ObservableCollection<Photo> _photos = new();
 
         public int Id

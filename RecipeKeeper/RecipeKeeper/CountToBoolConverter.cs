@@ -10,7 +10,6 @@ namespace RecipeKeeper
         {
             if (value is int count)
             {
-                // Кнопка активна, если количество фото равно 0
                 return count == 0;
             }
             return true;

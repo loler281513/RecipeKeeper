@@ -26,28 +26,24 @@ namespace RecipeKeeper.Models
             set { if (_recipeId != value) { _recipeId = value; OnPropertyChanged(); } }
         }
 
-        // Ссылка на сам продукт (из него берем Name)
         public Product Product
         {
             get => _product;
             set { if (_product != value) { _product = value; OnPropertyChanged(); } }
         }
 
-        // FLOAT в БД соответствует double в C#
         public double? Quantity
         {
             get => _quantity;
             set { if (_quantity != value) { _quantity = value; OnPropertyChanged(); } }
         }
 
-        // Например: "г", "шт.", "мл"
         public string? Unit
         {
             get => _unit;
             set { if (_unit != value) { _unit = value; OnPropertyChanged(); } }
         }
 
-        // Удобное свойство для вывода в интерфейс (строка вида "Помидоры - 2 шт.")
         public string DisplayText => Quantity.HasValue
             ? $"{Product?.Name} — {Quantity} {Unit}"
             : $"{Product?.Name}";

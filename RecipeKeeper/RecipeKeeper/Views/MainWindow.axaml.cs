@@ -28,19 +28,15 @@ namespace RecipeKeeper.Views
 
             var db = new DatabaseService();
 
-            // Загружаем продукты из БД
             var loadedProducts = db.GetProducts();
             _products = new ObservableCollection<Product>(loadedProducts);
 
-            // Загружаем рецепты с учетом всех связей
             var loadedRecipes = db.GetAllRecipes(loadedProducts);
             _allRecipes = new ObservableCollection<Recipe>(loadedRecipes);
             _filteredRecipes = new ObservableCollection<Recipe>(_allRecipes);
 
-            // Если рецептов нет - показываем сообщение
             if (!_allRecipes.Any())
             {
-                // Находим TextBlock внутри DefaultMessage StackPanel
                 var defaultTextBlock = DefaultMessage.Children.OfType<TextBlock>().FirstOrDefault();
                 if (defaultTextBlock != null)
                 {
@@ -49,11 +45,9 @@ namespace RecipeKeeper.Views
                 DefaultMessage.IsVisible = true;
             }
 
-            // Привязка данных
             RecipesList.ItemsSource = _filteredRecipes;
             ProductsList.ItemsSource = _products;
 
-            // Обработчики событий
             SearchBox.TextChanged += OnSearchTextChanged;
             FilterButton.Click += OnFilterButtonClick;
             AddRecipeButton.Click += OnAddRecipeClick;
@@ -71,12 +65,10 @@ namespace RecipeKeeper.Views
             SaveRecipeButton.Click += OnSaveRecipeClick;
             AddStepButton.Click += OnAddStepClick;
 
-            // Скрываем панели по умолчанию
             EditPanel.IsVisible = false;
             FilterContainer.IsVisible = _isFilterVisible;
             ViewPanel.IsVisible = false;
 
-            // Подписываемся на изменения фильтров продуктов
             foreach (var product in _products)
             {
                 product.PropertyChanged += OnProductFilterChanged;
@@ -442,7 +434,6 @@ namespace RecipeKeeper.Views
                         ViewPanel.IsVisible = false;
                         EditPanel.IsVisible = false;
 
-                        // Исправленный блок для установки текста
                         var defaultTextBlock = DefaultMessage.Children.OfType<TextBlock>().FirstOrDefault();
                         if (defaultTextBlock != null)
                         {

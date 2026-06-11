@@ -9,7 +9,7 @@ namespace RecipeKeeper.Models
     public class Recipe : INotifyPropertyChanged
     {
         private int _id;
-        private string _title = string.Empty; // Синхронизировано с [title] в БД
+        private string _title = string.Empty;
         private string? _description;
         private int _cookingTimeMinutes;
         private int _servings = 1;
@@ -61,7 +61,6 @@ namespace RecipeKeeper.Models
             set { if (_categoryId != value) { _categoryId = value; OnPropertyChanged(); } }
         }
 
-        // Теперь храним объекты RecipeIngredient вместо строк
         public ObservableCollection<RecipeIngredient> Ingredients
         {
             get => _ingredients;

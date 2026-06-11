@@ -15,7 +15,6 @@ namespace RecipeKeeper.Services
 
         public DatabaseService()
         {
-            // База данных будет создана в папке приложения
             string appDirectory = AppDomain.CurrentDomain.BaseDirectory;
             string dataDirectory = Path.Combine(appDirectory, "Data");
 
@@ -25,7 +24,6 @@ namespace RecipeKeeper.Services
             _databasePath = Path.Combine(dataDirectory, "RecipeKeeper.db");
             _connectionString = $"Data Source={_databasePath}";
 
-            // Создаем базу данных и таблицы при первом запуске
             InitializeDatabase();
         }
 
@@ -36,7 +34,6 @@ namespace RecipeKeeper.Services
             using var connection = new SqliteConnection(_connectionString);
             connection.Open();
 
-            // Создание таблиц
             string createTablesSql = @"
                 -- Таблица категорий
                 CREATE TABLE IF NOT EXISTS CATEGORY (
@@ -103,7 +100,6 @@ namespace RecipeKeeper.Services
             using var command = new SqliteCommand(createTablesSql, connection);
             command.ExecuteNonQuery();
 
-            // Если база данных новая - заполняем начальными данными
             if (isNewDatabase)
             {
                 SeedInitialData(connection);
@@ -112,7 +108,6 @@ namespace RecipeKeeper.Services
 
         private void SeedInitialData(SqliteConnection connection)
         {
-            // Добавляем категории
             var categories = new[] { "Завтраки", "Обеды", "Ужины", "Десерты", "Салаты", "Супы" };
             foreach (var category in categories)
             {
@@ -121,7 +116,6 @@ namespace RecipeKeeper.Services
                 cmd.ExecuteNonQuery();
             }
 
-            // Добавляем продукты
             var products = new[]
             {
                 "Мука", "Молоко", "Яйца", "Сахар", "Мясо", "Картофель",
@@ -136,7 +130,6 @@ namespace RecipeKeeper.Services
                 cmd.ExecuteNonQuery();
             }
 
-            // Получаем ID категорий и продуктов
             var categoryIds = new Dictionary<string, int>();
             using (var cmd = new SqliteCommand("SELECT id, name FROM CATEGORY", connection))
             using (var reader = cmd.ExecuteReader())
@@ -153,13 +146,11 @@ namespace RecipeKeeper.Services
                     productIds[reader.GetString(1)] = reader.GetInt32(0);
             }
 
-            // Добавляем тестовые рецепты
             AddSampleRecipe(connection, productIds, categoryIds);
         }
 
         private void AddSampleRecipe(SqliteConnection connection, Dictionary<string, int> productIds, Dictionary<string, int> categoryIds)
         {
-            // Рецепт 1: Классические блины
             using var insertRecipe = new SqliteCommand(@"
                 INSERT INTO RECIPE (title, description, cooking_time_minutes, servings, category_id, created_at, updated_at)
                 VALUES (@title, @description, @cooking_time, @servings, @category_id, datetime('now'), datetime('now'));
@@ -173,7 +164,6 @@ namespace RecipeKeeper.Services
 
             int recipeId1 = Convert.ToInt32(insertRecipe.ExecuteScalar());
 
-            // Ингредиенты для блинов
             AddRecipeIngredient(connection, recipeId1, productIds["Мука"], 200, "г");
             AddRecipeIngredient(connection, recipeId1, productIds["Молоко"], 500, "мл");
             AddRecipeIngredient(connection, recipeId1, productIds["Яйца"], 3, "шт.");
@@ -181,13 +171,11 @@ namespace RecipeKeeper.Services
             AddRecipeIngredient(connection, recipeId1, productIds["Соль"], 1, "щепотка");
             AddRecipeIngredient(connection, recipeId1, productIds["Масло растительное"], 30, "мл");
 
-            // Шаги для блинов
             AddStep(connection, recipeId1, 1, "Взбейте яйца с сахаром и солью в глубокой миске.");
             AddStep(connection, recipeId1, 2, "Добавьте молоко и постепенно всыпайте муку, непрерывно помешивая, чтобы не было комков.");
             AddStep(connection, recipeId1, 3, "Добавьте растительное масло, перемешайте.");
             AddStep(connection, recipeId1, 4, "Выпекайте блины на раскаленной сковороде с двух сторон до золотистого цвета.");
 
-            // Рецепт 2: Жареное мясо с картофелем
             using var insertRecipe2 = new SqliteCommand(@"
                 INSERT INTO RECIPE (title, description, cooking_time_minutes, servings, category_id, created_at, updated_at)
                 VALUES (@title, @description, @cooking_time, @servings, @category_id, datetime('now'), datetime('now'));
@@ -253,7 +241,6 @@ namespace RecipeKeeper.Services
             cmd.ExecuteNonQuery();
         }
 
-        // ==================== МЕТОДЫ ПОЛУЧЕНИЯ ДАННЫХ ====================
 
         public List<Product> GetProducts()
         {
@@ -405,7 +392,6 @@ namespace RecipeKeeper.Services
             }
         }
 
-        // ==================== МЕТОДЫ СОХРАНЕНИЯ ====================
 
         public int SaveRecipe(Recipe recipe)
         {
@@ -535,7 +521,6 @@ namespace RecipeKeeper.Services
             }
         }
 
-        // ==================== МЕТОДЫ УДАЛЕНИЯ ====================
 
         public void DeleteRecipe(int recipeId)
         {
@@ -567,7 +552,6 @@ namespace RecipeKeeper.Services
             command.ExecuteNonQuery();
         }
 
-        // ==================== ВСПОМОГАТЕЛЬНЫЕ МЕТОДЫ ====================
 
         public Product GetOrCreateProduct(string productName)
         {

@@ -11,7 +11,6 @@ namespace RecipeKeeper.Models
         private int _id;
         private string _name = string.Empty;
 
-        // Оставляем для совместимости с текущим UI фильтра
         private bool _includeFilter;
         private bool _excludeFilter;
 
