@@ -1,0 +1,451 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:models="clr-namespace:RecipeKeeper.Models"
+        xmlns:converters="clr-namespace:RecipeKeeper.Converters"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
+        x:Class="RecipeKeeper.Views.MainWindow"
+        Title="RecipeKeeper - Хранилище рецептов"
+        x:DataType="models:Recipe">
+    
+    <Window.Resources>
+        <converters:CountToBoolConverter x:Key="CountToBoolConverter"/>
+        <converters:InverseBoolConverter x:Key="InverseBoolConverter"/>
+    </Window.Resources>
+    
+    <DockPanel>
+        <!-- Левая панель -->
+        <Border DockPanel.Dock="Left" 
+                Width="300" 
+                Background="{DynamicResource SystemControlBackgroundChromeMediumBrush}">
+            
+            <StackPanel Margin="10">
+                <!-- Поиск -->
+                <TextBox x:Name="SearchBox" 
+                         Watermark="Поиск по названию рецепта..."
+                         Margin="0,0,0,10"/>
+                
+                <!-- Кнопка фильтра -->
+                <Button x:Name="FilterButton" 
+                        Content="🔍 Фильтр по продуктам" 
+                        HorizontalAlignment="Stretch"
+                        Margin="0,0,0,10"/>
+                
+                <!-- Контейнер фильтра -->
+                <Border x:Name="FilterContainer" 
+                        Background="{DynamicResource SystemControlBackgroundChromeLowBrush}" 
+                        CornerRadius="5"
+                        Padding="10"
+                        IsVisible="False">
+                    
+                    <ScrollViewer MaxHeight="400">
+                        <ItemsControl x:Name="ProductsList">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate DataType="models:Product">
+                                    <Grid ColumnDefinitions="Auto,*,Auto">
+                                        <CheckBox Grid.Column="0" 
+                                                  IsChecked="{Binding IncludeFilter}"
+                                                  VerticalAlignment="Center"
+                                                  Margin="0,0,10,0"
+                                                  ToolTip.Tip="Включить блюда с этим продуктом"/>
+                                        
+                                        <TextBlock Grid.Column="1" 
+                                                   Text="{Binding Name}" 
+                                                   VerticalAlignment="Center"
+                                                   Margin="5,0"/>
+                                        
+                                        <CheckBox Grid.Column="2" 
+                                                  IsChecked="{Binding ExcludeFilter}"
+                                                  VerticalAlignment="Center"
+                                                  ToolTip.Tip="Исключить блюда с этим продуктом"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </Border>
+                
+                <!-- Список рецептов с кнопкой + -->
+                <Grid Margin="0,10,0,5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" 
+                               Text="📖 Рецепты" 
+                               FontWeight="Bold"/>
+                    <Button Grid.Column="1" 
+                            x:Name="AddRecipeButton"
+                            Content="➕" 
+                            FontSize="14"
+                            Padding="5,0"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Cursor="Hand"/>
+                </Grid>
+                
+                <ListBox x:Name="RecipesList" Margin="0,0,0,10">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate DataType="models:Recipe">
+                            <TextBlock Text="{Binding Title}"/>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+
+                <!-- Кнопки управления рецептами -->
+                <StackPanel Margin="0,0,0,0" Spacing="5">
+                    <Button x:Name="ViewRecipeButton" 
+                            Content="👁️ Смотреть рецепт" 
+                            HorizontalAlignment="Stretch"
+                            IsEnabled="False"/>
+                    <Button x:Name="EditRecipeButton" 
+                            Content="✏️ Редактировать рецепт" 
+                            HorizontalAlignment="Stretch"
+                            IsEnabled="False"/>
+                    <Button x:Name="DeleteRecipeButton" 
+                            Content="🗑️ Удалить рецепт" 
+                            HorizontalAlignment="Stretch"
+                            IsEnabled="False"/>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+        
+        <!-- Правая панель -->
+        <ScrollViewer>
+            <Grid>
+                <!-- Панель просмотра рецепта (пошаговый просмотр с одной фоткой на шаг) -->
+                <StackPanel x:Name="ViewPanel" 
+                            VerticalAlignment="Top" 
+                            Margin="20"
+                            IsVisible="False">
+    
+                    <!-- Название рецепта -->
+                    <TextBlock x:Name="ViewRecipeName" 
+                               FontSize="20" 
+                               FontWeight="Bold"
+                               Margin="0,0,0,10"
+                               HorizontalAlignment="Center"/>
+    
+                    <!-- Ингредиенты -->
+                    <TextBlock Text="📝 Ингредиенты:" 
+                               FontWeight="Bold"
+                               Margin="0,10,0,5"/>
+                    <ItemsControl x:Name="ViewIngredientsList" Margin="20,0,0,10">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding}" TextWrapping="Wrap"/>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+    
+                    <Border Height="1" 
+                            Background="{DynamicResource SystemControlBackgroundChromeMediumBrush}"
+                            Margin="0,10,0,10"/>
+    
+                    <!-- Шаги приготовления - пошаговый просмотр -->
+                    <TextBlock Text="🍳 Шаг приготовления:" 
+                               FontWeight="Bold"
+                               FontSize="16"
+                               HorizontalAlignment="Center"
+                               Margin="0,0,0,15"/>
+    
+                    <!-- Контейнер для текущего шага -->
+                    <Border Background="{DynamicResource SystemControlBackgroundChromeLowBrush}"
+                            CornerRadius="10"
+                            Padding="20"
+                            Margin="0,0,0,10">
+        
+                        <StackPanel>
+                            <!-- Индикатор шага (1/12) -->
+                            <TextBlock x:Name="StepIndicator" 
+                                       Text="1 / 1" 
+                                       FontSize="16"
+                                       FontWeight="Bold"
+                                       HorizontalAlignment="Center"
+                                       Margin="0,0,0,15"/>
+            
+                            <!-- Фото шага -->
+                            <Border BorderBrush="{DynamicResource SystemControlBackgroundChromeMediumBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="8"
+                                    Background="{DynamicResource SystemControlBackgroundChromeMediumBrush}"
+                                    MinHeight="300">
+                                <Grid>
+                                    <!-- Изображение -->
+                                    <Image x:Name="CurrentStepImage" 
+                                           Stretch="Uniform"
+                                           MaxHeight="400"/>
+                    
+                                    <!-- Индикатор загрузки -->
+                                    <Border Background="#80000000" 
+                                            x:Name="LoadingOverlay"
+                                            IsVisible="False"
+                                            CornerRadius="8">
+                                        <TextBlock Text="Загрузка изображения..." 
+                                                   VerticalAlignment="Center" 
+                                                   HorizontalAlignment="Center"
+                                                   Foreground="White"
+                                                   FontSize="14"/>
+                                    </Border>
+                    
+                                    <!-- Индикатор отсутствия фото -->
+                                    <Border Background="{DynamicResource SystemControlBackgroundChromeLowBrush}" 
+                                            x:Name="NoPhotoOverlay"
+                                            IsVisible="False"
+                                            CornerRadius="8">
+                                        <StackPanel VerticalAlignment="Center" 
+                                                    HorizontalAlignment="Center">
+                                            <TextBlock Text="📷" 
+                                                       FontSize="48"
+                                                       HorizontalAlignment="Center"/>
+                                            <TextBlock Text="Нет фото для этого шага" 
+                                                       Margin="0,10,0,0"/>
+                                        </StackPanel>
+                                    </Border>
+                                </Grid>
+                            </Border>
+            
+                            <!-- Описание шага -->
+                            <TextBlock x:Name="CurrentStepDescription" 
+                                       TextWrapping="Wrap"
+                                       FontSize="14"
+                                       Margin="0,20,0,0"
+                                       HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+    
+                    <!-- Кнопки навигации по шагам -->
+                    <Grid Margin="0,10,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+        
+                        <Button x:Name="PrevStepButton" 
+                                Grid.Column="0"
+                                Content="◀ Предыдущий шаг"
+                                HorizontalAlignment="Stretch"
+                                Margin="0,0,10,0"
+                                Padding="10,8"
+                                IsEnabled="False"
+                                Click="OnPrevStepClick"/>
+        
+                        <Button x:Name="NextStepButton" 
+                                Grid.Column="1"
+                                Content="Следующий шаг ▶"
+                                HorizontalAlignment="Stretch"
+                                Margin="10,0,0,0"
+                                Padding="10,8"
+                                IsEnabled="False"
+                                Click="OnNextStepClick"/>
+                    </Grid>
+                </StackPanel>
+
+                <!-- Панель редактирования рецепта -->
+                <StackPanel x:Name="EditPanel" 
+                            VerticalAlignment="Top" 
+                            Margin="20"
+                            IsVisible="False">
+                    
+                    <TextBlock Text="✏️ Редактирование рецепта" 
+                               FontSize="16" 
+                               FontWeight="Bold"
+                               Margin="0,0,0,15"/>
+                    
+                    <!-- Основная информация -->
+                    <TextBlock Text="Название рецепта:" FontWeight="Bold"/>
+                    <TextBox x:Name="EditRecipeName" Margin="0,5,0,10" Watermark="Например: Борщ украинский"/>
+                    
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                        <!-- Время приготовления -->
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="⏱️ Время приготовления:" FontWeight="Bold"/>
+                            <TextBox x:Name="EditCookingTime" 
+                                     Margin="0,5,0,10" 
+                                     Watermark="минуты"
+                                     Text="30"/>
+                        </StackPanel>
+                        
+                        <!-- Количество порций -->
+                        <StackPanel Grid.Column="1">
+                            <TextBlock Text="👥 Количество порций:" FontWeight="Bold"/>
+                            <TextBox x:Name="EditServings" 
+                                     Margin="0,5,0,10" 
+                                     Watermark="порции"
+                                     Text="4"/>
+                        </StackPanel>
+                    </Grid>
+                    
+                    <!-- Описание -->
+                    <TextBlock Text="📝 Описание (необязательно):" FontWeight="Bold"/>
+                    <TextBox x:Name="EditDescription" 
+                             TextWrapping="Wrap" 
+                             AcceptsReturn="True"
+                             Height="60"
+                             Margin="0,5,0,10"
+                             Watermark="Краткое описание блюда..."/>
+                    
+                    <!-- Ингредиенты -->
+                    <TextBlock Text="🛒 Ингредиенты (каждый с новой строки):" FontWeight="Bold"/>
+                    <TextBox x:Name="EditIngredients" 
+                             TextWrapping="Wrap" 
+                             AcceptsReturn="True"
+                             Height="120"
+                             Margin="0,5,0,10"
+                             Watermark="Пример:&#xa;Помидоры — 200 г&#xa;Лук репчатый — 1 шт.&#xa;Чеснок — 3 зубчика&#xa;Масло оливковое — 2 ст.л."/>
+                    
+                    <TextBlock Text="🥘 Шаги приготовления:" FontWeight="Bold" Margin="0,0,0,5"/>
+                    
+                    <!-- Редактор шагов с фотографиями -->
+                    <ScrollViewer MaxHeight="400">
+                        <ItemsControl x:Name="EditStepsList">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate DataType="models:Step">
+                                    <Border BorderBrush="{DynamicResource SystemControlBackgroundChromeMediumBrush}" 
+                                            BorderThickness="0,0,0,1"
+                                            Padding="0,10"
+                                            Margin="0,5">
+                                        <StackPanel>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                        
+                                                <TextBlock Grid.Column="0" 
+                                                           FontWeight="Bold"
+                                                           VerticalAlignment="Center"
+                                                           Margin="0,0,10,0">
+                                                    <TextBlock.Text>
+                                                        <MultiBinding StringFormat="Шаг {0}:">
+                                                            <Binding Path="StepNumber"/>
+                                                        </MultiBinding>
+                                                    </TextBlock.Text>
+                                                </TextBlock>
+                        
+                                                <TextBox Grid.Column="1" 
+                                                         Text="{Binding InstructionText}"
+                                                         TextWrapping="Wrap"
+                                                         AcceptsReturn="True"
+                                                         MinHeight="60"
+                                                         Watermark="Описание шага..."/>
+                        
+                                                <Button Grid.Column="2"
+                                                        Content="🗑️"
+                                                        Background="Transparent"
+                                                        BorderThickness="0"
+                                                        Margin="5,0,0,0"
+                                                        Tag="{Binding}"
+                                                        Click="OnDeleteStepClick"
+                                                        ToolTip.Tip="Удалить шаг"/>
+                                            </Grid>
+                    
+                                            <!-- Фотографии шага в режиме редактирования -->
+                                            <StackPanel Margin="20,10,0,0">
+                                                <ItemsControl ItemsSource="{Binding Photos}">
+                                                    <ItemsControl.ItemsPanel>
+                                                        <ItemsPanelTemplate>
+                                                            <WrapPanel/>
+                                                        </ItemsPanelTemplate>
+                                                    </ItemsControl.ItemsPanel>
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate DataType="models:Photo">
+                                                            <Border Margin="0,0,10,10"
+                                                                    BorderBrush="{DynamicResource SystemControlBackgroundChromeMediumBrush}"
+                                                                    BorderThickness="1"
+                                                                    CornerRadius="5"
+                                                                    Background="White">
+                                                                <StackPanel>
+                                                                    <Grid Width="100" Height="100" Margin="5">
+                                                                        <Image Source="{Binding Bitmap}" 
+                                                                               Stretch="UniformToFill"/>
+                                                                        <Border Background="#80000000" 
+                                                                                IsVisible="{Binding IsLoading}"
+                                                                                CornerRadius="3">
+                                                                            <TextBlock Text="Загрузка..." 
+                                                                                       VerticalAlignment="Center" 
+                                                                                       HorizontalAlignment="Center"
+                                                                                       Foreground="White"
+                                                                                       FontSize="10"/>
+                                                                        </Border>
+                                                                    </Grid>
+                                                                    <Button Content="❌"
+                                                                            Background="Transparent"
+                                                                            BorderThickness="0"
+                                                                            FontSize="10"
+                                                                            Padding="2"
+                                                                            Tag="{Binding}"
+                                                                            Click="OnDeletePhotoFromStepClick"
+                                                                            ToolTip.Tip="Удалить фото"/>
+                                                                </StackPanel>
+                                                            </Border>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+
+                                                <!-- Кнопка добавления фото -->
+                                                <Button Content="📷 Добавить фото к шагу"
+                                                        Background="Transparent"
+                                                        BorderThickness="1"
+                                                        Padding="8,4"
+                                                        Margin="0,10,0,0"
+                                                        FontSize="11"
+                                                        HorizontalAlignment="Left"
+                                                        Tag="{Binding}"
+                                                        Click="OnAddPhotoToStepClick"
+                                                        IsEnabled="{Binding Photos.Count, Converter={StaticResource CountToBoolConverter}}"
+                                                        ToolTip.Tip="Максимум одно фото на шаг"/>
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                    
+                    <!-- Кнопки управления -->
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10" Margin="0,15,0,0">
+                        <Button Grid.Column="0" 
+                                x:Name="AddStepButton" 
+                                Content="➕ Добавить шаг"
+                                HorizontalAlignment="Stretch"
+                                Padding="10,8"/>
+                        <Button Grid.Column="1" 
+                                x:Name="SaveRecipeButton" 
+                                Content="💾 Сохранить рецепт"
+                                Background="#2E7D32"
+                                Foreground="White"
+                                Padding="10,8"/>
+                    </Grid>
+                    
+                    <!-- Статус сообщение -->
+                    <TextBlock x:Name="EditStatusText" 
+                               IsVisible="False" 
+                               Margin="0,10,0,0"
+                               Padding="5"
+                               HorizontalAlignment="Center"/>
+                </StackPanel>
+
+                <!-- Сообщение по умолчанию -->
+                <StackPanel x:Name="DefaultMessage" 
+                           VerticalAlignment="Center" 
+                           HorizontalAlignment="Center"
+                           IsVisible="True">
+                    <TextBlock Text="📚 Добро пожаловать в RecipeKeeper!" 
+                               FontSize="18"
+                               FontWeight="Bold"
+                               HorizontalAlignment="Center"/>
+                    <TextBlock Text="Выберите рецепт из списка или создайте новый" 
+                               Margin="0,10,0,0"
+                               Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
+                    <Button Content="➕ Создать новый рецепт"
+                            Margin="0,20,0,0"
+                            Click="OnAddRecipeClick"
+                            HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Grid>
+        </ScrollViewer>
+    </DockPanel>
+</Window>
